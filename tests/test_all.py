@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from src.grammar import *
-from src.automata import *
+from angryowl.grammar import *
+from angryowl.automata import *
 
 def test_type3_grammar():
     VN = {"A", "B"}

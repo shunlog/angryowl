@@ -1,33 +1,32 @@
 class Grammar:
     '''
     A grammar is represented by 4 variables:
-    VN - list of nonterminals (strings)
-    VT - list of terminals (strings)
-    P - list of productions represented by a dictionary, where
+
+    :param VN: list of nonterminals (strings)
+    :param VT: list of terminals (strings)
+    :param P: list of productions represented by a dictionary, where
         keys are rules and values are sets of rules.
         A rule is a tuple of terminals and nonterminals.
         Although, a rule can also be represented by a string
         if every symbol is a single character in length.
-    S - starting state (string)
+    :param S: starting state (string)
 
-    Example:
+    For example, the formal grammar::
 
-    The formal grammar
+        A -> aA
+        A -> aB
+        A -> ε
+        B -> b
 
-    A -> aA
-    A -> aB
-    A -> ε
-    B -> b
+    Is represented by the following variables::
 
-    Is represented by the following variables
-
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    P = {
-        ("A",): {("a", "B"), ("a", "A"), ()},
-        ("B",): {("b",)}
-    }
-    S = "A"
+        VN = {"A", "B"}
+        VT = {"a", "b"}
+        P = {
+            ("A",): {("a", "B"), ("a", "A"), ()},
+            ("B",): {("b",)}
+        }
+        S = "A"
     '''
     Rule = tuple[str]
 
@@ -65,8 +64,10 @@ class Grammar:
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
     def constr_word(self):
-        '''Assuming *strictly* right-regular grammar,
-        build a word by randomly picking rules to rewrite'''
+        '''Assuming *strictly* right-regular grammar.
+
+        :returns: A string built using rules from the grammar picked at random.
+        '''
         assert self.type() == 3
 
         from random import choice

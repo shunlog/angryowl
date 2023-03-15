@@ -4,12 +4,13 @@ from icecream import ic
 
 class FA:
     '''
-    A finite automaton is represented by 5 variables:
-    S - set of states (set of strings)
-    A - alphabet, which is a set of symbols (set of strings)
-    s0 - starting state (a string)
-    d - the state-transition function (dictionary: tuple(state, symbol) -> set of states)
-    F - set of final states (must be subset of S)
+    A finite automaton is represented by 5 variables.
+
+    :param S: set of states (set of strings)
+    :param A: alphabet, which is a set of symbols (set of strings)
+    :param s0: starting state (a string)
+    :param d: the state-transition function (dictionary: tuple(state, symbol) -> set of states)
+    :param F: set of final states (must be subset of S)
     '''
 
     def __init__(self, S: set[str], A: set[str], s0: str, d: dict[tuple[set[str], str], set[str]], F: set[str]):
@@ -52,25 +53,25 @@ class DFA(FA):
     whereas the keys are now represented by tuple[set[State], Symbol]
     The other variables, S, s0 and F also reflect this change.
 
-    Example:
+    For example, the NFA::
 
-    The NFA:
-    S = {'B', 'ε', 'A'}
-    A = {'a', 'b'}
-    s0 = 'A'
-    d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-    F = {'ε', 'A'}
+        S = {'B', 'ε', 'A'}
+        A = {'a', 'b'}
+        s0 = 'A'
+        d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
+        F = {'ε', 'A'}
 
-    is transformed into the following DFA:
-    S = {{'A'}, {'A', 'B'}, {'ε'}}
-    A = {'a', 'b'}
-    s0 = {'A'}
-    d = {
-        ({'A'}, 'a'): {'A', 'B'},
-        ({'A', 'B'}, 'a'): {'A', 'B'},
-        ({'A', 'B'}, 'b'): {'ε'}
-    }
-    F = {{'A'}, {'A', 'B'}, {'ε'}}
+    is transformed into the following DFA::
+
+        S = {{'A'}, {'A', 'B'}, {'ε'}}
+        A = {'a', 'b'}
+        s0 = {'A'}
+        d = {
+            ({'A'}, 'a'): {'A', 'B'},
+            ({'A', 'B'}, 'a'): {'A', 'B'},
+            ({'A', 'B'}, 'b'): {'ε'}
+        }
+        F = {{'A'}, {'A', 'B'}, {'ε'}}
     '''
 
     def verify(self, w):
@@ -98,31 +99,36 @@ class DFA(FA):
 class NFA(FA):
     '''
     Each rule in the regular grammar is treated as follows:
+
     1) A -> aB
+
         - a transition is created: (A, a): B
         - "a" is added to the alphabet
+
     2) A -> a
+
         - a transition is created: (A, a): ε
         - a final state is added: ε
         - "a" is added to the alphabet
-    3) B -> ε,
+
+    3) B -> ε
+
         - a final state is added: B
 
-    Example:
+    For example, the formal grammar::
 
-    The formal grammar
+        A -> aA
+        A -> aB
+        A -> ε
+        B -> b
 
-    A -> aA
-    A -> aB
-    A -> ε
-    B -> b
+    is transformed into the following NFA::
 
-    is transformed into the following NFA:
-    S = {'B', 'ε', 'A'}
-    A = {'a', 'b'}
-    s0 = 'A'
-    d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-    F = {'ε', 'A'}
+        S = {'B', 'ε', 'A'}
+        A = {'a', 'b'}
+        s0 = 'A'
+        d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
+        F = {'ε', 'A'}
     '''
 
     def from_grammar(g : Grammar):
@@ -164,7 +170,7 @@ class NFA(FA):
         return Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
 
     def to_DFA(self) -> DFA:
-        '''For an explanation of the algo, check out the dragon book'''
+        '''For an explanation of the algo, check out the dragon book.'''
 
         def move(T, a):
             '''Returns the set of states reachable from any state in T via symbol a'''

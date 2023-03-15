@@ -1,6 +1,5 @@
 from .grammar import Grammar
 from collections import defaultdict
-from icecream import ic
 
 class FA:
     '''

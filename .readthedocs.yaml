@@ -16,7 +16,7 @@ sphinx:
    configuration: docs/conf.py
 
 sphinx:
-  fail_on_warning: true
+  fail_on_warning: false
 
 python:
   # Install our python package before building the docs

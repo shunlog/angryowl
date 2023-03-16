@@ -132,7 +132,7 @@ class NFA(FA):
 
     def from_grammar(g : Grammar):
         '''This function only recognizes *strictly* regular grammars'''
-        assert g.type() == 3
+        assert g.type() == Grammar.Type.REGULAR
         d = defaultdict(set)
         F = set()
         A = set()

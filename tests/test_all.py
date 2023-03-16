@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from angryowl.grammar import *
 from angryowl.automata import *
+from icecream import ic
 
 def test_type3_grammar():
     VN = {"A", "B"}
@@ -10,7 +11,7 @@ def test_type3_grammar():
          ("B"): {("b",)}}
     g = Grammar(VN, VT, P, S)
 
-    assert g.type() == 3
+    assert g.type() == Grammar.Type.REGULAR
 
 def test_type1_grammar():
     VN = {"A", "B"}
@@ -18,19 +19,19 @@ def test_type1_grammar():
     S = "A"
     P = {("abAbC"): {("abAbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 1
+    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
 
     P = {("abAbC"): {("abxxxbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 1
+    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
 
     P = {("AbC"): {("xxxbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 1
+    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
 
     P = {("bCA"): {("bCB")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 1
+    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
 
 def test_type0_grammar():
     VN = {"A", "B"}
@@ -38,11 +39,11 @@ def test_type0_grammar():
     S = "A"
     P = {("abbC"): {("abAbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 0
+    assert g.type() == Grammar.Type.UNRESTRICTED_GRAMMAR
 
     P = {("abAbC"): {("abbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == 0
+    assert g.type() == Grammar.Type.UNRESTRICTED_GRAMMAR
 
 def test_grammar_to_NFA():
     VN = {"A", "B"}

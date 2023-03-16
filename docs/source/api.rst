@@ -14,7 +14,6 @@ Grammar
 
 .. autoclass:: angryowl.grammar.GrammarType
    :members:
-   :inherited-members:
 
 Automata
 ------------------

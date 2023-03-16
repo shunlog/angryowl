@@ -11,7 +11,7 @@ def test_type3_grammar():
          ("B"): {("b",)}}
     g = Grammar(VN, VT, P, S)
 
-    assert g.type() == Grammar.Type.REGULAR
+    assert g.type() == GrammarType.REGULAR
 
 def test_type1_grammar():
     VN = {"A", "B"}
@@ -19,19 +19,19 @@ def test_type1_grammar():
     S = "A"
     P = {("abAbC"): {("abAbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
+    assert g.type() == GrammarType.CONTEXT_SENSITIVE
 
     P = {("abAbC"): {("abxxxbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
+    assert g.type() == GrammarType.CONTEXT_SENSITIVE
 
     P = {("AbC"): {("xxxbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
+    assert g.type() == GrammarType.CONTEXT_SENSITIVE
 
     P = {("bCA"): {("bCB")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.CONTEXT_SENSITIVE
+    assert g.type() == GrammarType.CONTEXT_SENSITIVE
 
 def test_type0_grammar():
     VN = {"A", "B"}
@@ -39,11 +39,11 @@ def test_type0_grammar():
     S = "A"
     P = {("abbC"): {("abAbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.UNRESTRICTED_GRAMMAR
+    assert g.type() == GrammarType.UNRESTRICTED_GRAMMAR
 
     P = {("abAbC"): {("abbC")}}
     g = Grammar(VN, VT, P, S)
-    assert g.type() == Grammar.Type.UNRESTRICTED_GRAMMAR
+    assert g.type() == GrammarType.UNRESTRICTED_GRAMMAR
 
 def test_grammar_to_NFA():
     VN = {"A", "B"}

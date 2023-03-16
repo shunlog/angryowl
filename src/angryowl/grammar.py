@@ -1,5 +1,12 @@
 from enum import IntEnum
 
+class GrammarType(IntEnum):
+    '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
+    UNRESTRICTED_GRAMMAR = 0
+    CONTEXT_SENSITIVE = 1
+    CONTEXT_FREE = 2
+    REGULAR = 3
+
 class Grammar:
     '''A `formal grammar`_ is defined by 4 components:
 
@@ -33,13 +40,6 @@ class Grammar:
 
     SymbolsStr = tuple[str]
 
-    class Type(IntEnum):
-        '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
-        UNRESTRICTED_GRAMMAR = 0
-        CONTEXT_SENSITIVE = 1
-        CONTEXT_FREE = 2
-        REGULAR = 3
-
     def __init__(self, VN: set[str], VT: set[str], P: dict[SymbolsStr, set[SymbolsStr]], S: str):
         self.VN = VN
         self.VT = VT
@@ -49,8 +49,9 @@ class Grammar:
     def __repr__(self):
         return ', '.join([str(x) for x in [self.VN, self.VT, self.P, self.S]])
 
-    def type(self) -> Type:
-        '''Returns the type of the grammar object according to the `Chomsky hierarchy`_.
+    def type(self) -> GrammarType:
+        '''Returns the type of the grammar object according to the
+        `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.
 
         If we determine the type of each production rule in the grammar,
         then the type of the grammar will be the least restrictive type among them
@@ -62,9 +63,9 @@ class Grammar:
                 (len(tail) == 0 or \
                 len(tail) == 1 and tail[0] in self.VT or \
                 len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
-                return self.Type.REGULAR
+                return GrammarType.REGULAR
             elif len(head) == 1:
-                return self.Type.CONTEXT_FREE
+                return GrammarType.CONTEXT_FREE
             else:
                 for i,l in enumerate(head):
                     if l not in self.VN:
@@ -74,8 +75,8 @@ class Grammar:
                     if a == tail[:i] and \
                        b == (tail[-len(b):] if len(b) != 0 else '') and \
                        len(head) <= len(tail):
-                        return self.Type.CONTEXT_SENSITIVE
-                return self.Type.UNRESTRICTED_GRAMMAR
+                        return GrammarType.CONTEXT_SENSITIVE
+                return GrammarType.UNRESTRICTED_GRAMMAR
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
@@ -85,7 +86,7 @@ class Grammar:
 
         :returns: A random string that is valid according to the grammar.
         '''
-        assert self.type() == self.Type.REGULAR
+        assert self.type() == GrammarType.REGULAR
 
         from random import choice
         s = self.S  # current state

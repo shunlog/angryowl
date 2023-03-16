@@ -12,6 +12,10 @@ Grammar
    :members:
    :inherited-members:
 
+.. autoclass:: angryowl.grammar.GrammarType
+   :members:
+   :inherited-members:
+
 Automata
 ------------------
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from .grammar import Grammar
+from .grammar import Grammar, GrammarType
 from collections import defaultdict
 
 class FA:
@@ -90,7 +90,7 @@ class FA:
         :param g: A *strictly* regular grammar.
         :returns: An :class:`angryowl.automata.FA` instance.
         '''
-        assert g.type() == Grammar.Type.REGULAR
+        assert g.type() == GrammarType.REGULAR
         d = defaultdict(set)
         F = set()
         A = set()

@@ -16,7 +16,7 @@ author = 'shunlog'
 extensions = ['sphinx.ext.autodoc',
               "sphinx.ext.intersphinx"]
 
-autodoc_typehints = "description"
+autodoc_typehints = "both"
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
 autodoc_default_options = {
     'members':           True,

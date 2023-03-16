@@ -1,13 +1,15 @@
+from __future__ import annotations
 from .grammar import Grammar
 from collections import defaultdict
 
 class FA:
     '''
-    A finite automaton is represented by 5 variables.
+    A `formal automaton <https://en.wikipedia.org/wiki/Finite-state_machine#Mathematical_model>`_
+    is represented by 5 variables.
 
     :param S: set of states
-    :param A: alphabet, which is a set of symbols
-    :param s0: starting state
+    :param A: alphabet (set of symbols)
+    :param s0: initial state
     :param d: the state-transition function
     :param F: set of final states
     '''
@@ -22,17 +24,21 @@ class FA:
     def __repr__(self):
         return ', '.join([str(x) for x in [self.S, self.A, self.s0, self.d, self.F]])
 
-    def is_deterministic(self):
-       return all([len(l) == 1 for l in self.d.values()])
+    def is_deterministic(self) -> bool:
+        '''See what determinism means on `wikipedia <https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton#>`_.
+
+        :returns: True if the FA is deterministic, otherwise False.'''
+        return all([len(l) == 1 for l in self.d.values()])
+
 
     def verify(self, w) -> bool:
-        '''Verifies whether this DFA (assuming it's a DFA) accepts the string.
+        '''Assuming the automaton is deterministic,
+        verify whether it accepts the given string.
 
-        :returns: True if it is accepted, otherwise false.
+        :returns: True if string is accepted, otherwise False.
         '''
 
         assert self.is_deterministic()
-
         s = self.s0
         for l in w:
             s2 = self.d.get((s, l))
@@ -43,10 +49,13 @@ class FA:
 
 
     @staticmethod
-    def from_grammar(g: Grammar):
-        '''Convert a *strictly* regular grammar to an NFA.
+    def from_grammar(g: Grammar) -> FA:
+        '''Convert a `*strictly* regular grammar
+        <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_
+        to an NFA.
 
-        Each rule in the regular grammar is treated as follows:
+        There are 3 forms of production rules in a strictly regular grammar.
+        The algorithm basically executes a list of actions for each production rule:
 
         1) A -> aB
 
@@ -77,6 +86,9 @@ class FA:
             s0 = 'A'
             d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
             F = {'ε', 'A'}
+
+        :param g: A *strictly* regular grammar.
+        :returns: An :class:`angryowl.automata.FA` instance.
         '''
         assert g.type() == Grammar.Type.REGULAR
         d = defaultdict(set)
@@ -101,11 +113,17 @@ class FA:
         return FA(S = g.VN | F, A = A, s0 = g.S, d = d, F = F)
 
     def to_grammar(self) -> Grammar:
-        VT = {k[1] for k in self.d.keys()}
+        '''The inverse of :func:`angryowl.automata.FA.from_grammar`.
 
+        :returns: a strictly regular grammar corresponding to the current FA.
+        '''
+
+        VT = {k[1] for k in self.d.keys()}
         P = defaultdict(set)
+
         for k, v in self.d.items():
             P[k[0],] |= {(k[1], s) if s != "ε" else (k[1],) for s in v}
+
         for s in self.F:
             if s == "ε":
                 continue
@@ -114,12 +132,13 @@ class FA:
 
         return Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
 
+
     def to_DFA(self):
-        '''For an explanation of the algo, check out the dragon book.
+        '''If this FA is nondeterministic, convert it to a deterministic one.
 
-        This algorithm is described in the Dragon book.
-
-        Basically, the states in the NFA become sets of states in the DFA.
+        See the `Dragon book <https://suif.stanford.edu/dragonbook/>`_
+        for a better explanation of the algorithm.
+        In short, the states in the NFA become sets of states in the DFA.
 
         For example, the NFA::
 
@@ -162,8 +181,9 @@ class FA:
         F = {T for T in dstat if any(s in self.F for s in T)}
         return FA(S = set(dstat.keys()), A = self.A, s0 = frozenset({self.s0,}), d = dtran, F = F)
 
+
     def draw(self, dirname, fn) -> str:
-        '''Visualize the FA diagram using `graphviz https://graphviz.org/`_.
+        '''Visualize the FA diagram using `graphviz <https://graphviz.org/>`_.
 
         :param dirname: Directory to which the file will be exported.
         :param fn: Name of the diagram (filename minus extension).

@@ -1,8 +1,9 @@
 from enum import IntEnum
 
 class Grammar:
-    ''' A `formal grammar <https://en.wikipedia.org/wiki/Formal_grammar#Formal_definition>`_
-    is defined by 4 components:
+    '''A `formal grammar`_ is defined by 4 components:
+
+    .. _formal grammar: https://en.wikipedia.org/wiki/Formal_grammar#Formal_definition
 
     :param VN: set of nonterminals
     :param VT: set of terminals
@@ -33,9 +34,7 @@ class Grammar:
     SymbolsStr = tuple[str]
 
     class Type(IntEnum):
-        '''Grammar classes according to the `Chomsky hierarchy
-        <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.
-        '''
+        '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
         UNRESTRICTED_GRAMMAR = 0
         CONTEXT_SENSITIVE = 1
         CONTEXT_FREE = 2
@@ -81,8 +80,7 @@ class Grammar:
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
     def constr_word(self) -> str:
-        '''Assuming a `*strictly* regular grammar
-        <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
+        '''Assuming a `\*strictly\* regular grammar <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
         construct a word using rules from the grammar picked at random.
 
         :returns: A random string that is valid according to the grammar.

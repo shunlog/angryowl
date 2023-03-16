@@ -50,7 +50,7 @@ class FA:
 
     @staticmethod
     def from_grammar(g: Grammar) -> FA:
-        '''Convert a `*strictly* regular grammar
+        '''Convert a `\*strictly\* regular grammar
         <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_
         to an NFA.
 

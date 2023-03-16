@@ -22,37 +22,8 @@ class FA:
     def __repr__(self):
         return ', '.join([str(x) for x in [self.S, self.A, self.s0, self.d, self.F]])
 
-    def _get_nonfinal_states(self):
-        return (str(s) for s in self.S - self.F)
-
-    def _get_final_states(self):
-        return (str(s) for s in self.F)
-
-    def _get_edges(self):
-        e = []
-        for k, v in self.d.items():
-            for s in v:
-                e.append((str(k[0]), str(s), str(k[1])))
-        return e
-
-    def draw(self, dirname, fn):
-        import graphviz
-        dot = graphviz.Digraph(fn, format='svg')
-        dot.attr(rankdir='LR')
-
-        for s in self._get_final_states():
-            dot.attr('node', shape='doublecircle')
-            dot.node(s)
-
-        for s in self._get_nonfinal_states():
-            dot.attr('node', shape='circle')
-            dot.node(s)
-
-        for s0, s1, label in self._get_edges():
-            dot.edge(s0, s1, label=label)
-
-        fn = dot.render(directory=dirname).replace('\\', '/')
-        return fn
+    def is_deterministic(self):
+       return all([len(l) == 1 for l in self.d.values()])
 
     def verify(self, w) -> bool:
         '''Verifies whether this DFA (assuming it's a DFA) accepts the string.
@@ -191,5 +162,40 @@ class FA:
         F = {T for T in dstat if any(s in self.F for s in T)}
         return FA(S = set(dstat.keys()), A = self.A, s0 = frozenset({self.s0,}), d = dtran, F = F)
 
-    def is_deterministic(self):
-       return all([len(l) == 1 for l in self.d.values()])
+    def draw(self, dirname, fn) -> str:
+        '''Visualize the FA diagram using `graphviz https://graphviz.org/`_.
+
+        :param dirname: Directory to which the file will be exported.
+        :param fn: Name of the diagram (filename minus extension).
+        :returns: Path of the exported file.'''
+
+        def get_nonfinal_states():
+            return (str(s) for s in self.S - self.F)
+
+        def get_final_states():
+            return (str(s) for s in self.F)
+
+        def get_edges():
+            e = []
+            for k, v in self.d.items():
+                for s in v:
+                    e.append((str(k[0]), str(s), str(k[1])))
+            return e
+
+        import graphviz
+        dot = graphviz.Digraph(fn, format='svg')
+        dot.attr(rankdir='LR')
+
+        for s in get_final_states():
+            dot.attr('node', shape='doublecircle')
+            dot.node(s)
+
+        for s in get_nonfinal_states():
+            dot.attr('node', shape='circle')
+            dot.node(s)
+
+        for s0, s1, label in get_edges():
+            dot.edge(s0, s1, label=label)
+
+        fn = dot.render(directory=dirname).replace('\\', '/')
+        return fn

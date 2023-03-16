@@ -125,3 +125,24 @@ def test_DFA_verify_word():
         ic(w)
         assert dfa.verify(w)
         assert not dfa.verify(w + "!")
+
+def test_draw():
+    VN = {"A", "B"}
+    VT = {"a", "b"}
+    S = "A"
+    P = {("A",): {("a", "B"), ("a", "A")},
+         ("B",): {("b",)}}
+    g = Grammar(VN=VN, VT=VT, P=P, S=S)
+    ic(g)
+    nfa = FA.from_grammar(g)
+    ic(nfa)
+    dfa = nfa.to_DFA()
+    ic(dfa)
+
+    from os.path import isfile
+
+    nfa_fn = nfa.draw('/tmp/', 'nfa')
+    assert isfile(nfa_fn)
+
+    dfa_fn = dfa.draw('/tmp/', 'dfa')
+    assert isfile(dfa_fn)

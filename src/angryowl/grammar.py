@@ -2,14 +2,10 @@ class Grammar:
     '''
     A grammar is represented by 4 variables:
 
-    :param VN: list of nonterminals (strings)
-    :param VT: list of terminals (strings)
-    :param P: list of productions represented by a dictionary, where
-        keys are rules and values are sets of rules.
-        A rule is a tuple of terminals and nonterminals.
-        Although, a rule can also be represented by a string
-        if every symbol is a single character in length.
-    :param S: starting state (string)
+    :param VN: set of nonterminals
+    :param VT: set of terminals
+    :param P: list of productions.
+    :param S: starting state
 
     For example, the formal grammar::
 
@@ -63,7 +59,7 @@ class Grammar:
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
-    def constr_word(self):
+    def constr_word(self) -> str:
         '''Assuming *strictly* right-regular grammar.
 
         :returns: A string built using rules from the grammar picked at random.

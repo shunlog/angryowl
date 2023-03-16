@@ -5,11 +5,11 @@ class FA:
     '''
     A finite automaton is represented by 5 variables.
 
-    :param S: set of states (set of strings)
-    :param A: alphabet, which is a set of symbols (set of strings)
-    :param s0: starting state (a string)
-    :param d: the state-transition function (dictionary: tuple(state, symbol) -> set of states)
-    :param F: set of final states (must be subset of S)
+    :param S: set of states
+    :param A: alphabet, which is a set of symbols
+    :param s0: starting state
+    :param d: the state-transition function
+    :param F: set of final states
     '''
 
     def __init__(self, S: set[str], A: set[str], s0: str, d: dict[tuple[set[str], str], set[str]], F: set[str]):

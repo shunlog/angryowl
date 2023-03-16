@@ -22,6 +22,19 @@ class FA:
     def __repr__(self):
         return ', '.join([str(x) for x in [self.S, self.A, self.s0, self.d, self.F]])
 
+    def _get_nonfinal_states(self):
+        return (str(s) for s in self.S - self.F)
+
+    def _get_final_states(self):
+        return (str(s) for s in self.F)
+
+    def _get_edges(self):
+        e = []
+        for k, v in self.d.items():
+            for s in v:
+                e.append((str(k[0]), str(s), str(k[1])))
+        return e
+
     def draw(self, dirname, fn):
         import graphviz
         dot = graphviz.Digraph(fn, format='svg')
@@ -41,97 +54,59 @@ class FA:
         fn = dot.render(directory=dirname).replace('\\', '/')
         return fn
 
+    def verify(self, w) -> bool:
+        '''Verifies whether this DFA (assuming it's a DFA) accepts the string.
 
-class DFA(FA):
-    '''
-    This Deterministic finite automaton is similar to the NFA,
-    with the distinction that states are now represented by sets, and not strings.
-    For example, in the transitions dict,
-    a value is a set of states denoting a single "node" in the DFA graph,
-    not multiple possible states like in the case of an NFA,
-    whereas the keys are now represented by tuple[set[State], Symbol]
-    The other variables, S, s0 and F also reflect this change.
+        :returns: True if it is accepted, otherwise false.
+        '''
 
-    For example, the NFA::
+        assert self.is_deterministic()
 
-        S = {'B', 'ε', 'A'}
-        A = {'a', 'b'}
-        s0 = 'A'
-        d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-        F = {'ε', 'A'}
-
-    is transformed into the following DFA::
-
-        S = {{'A'}, {'A', 'B'}, {'ε'}}
-        A = {'a', 'b'}
-        s0 = {'A'}
-        d = {
-            ({'A'}, 'a'): {'A', 'B'},
-            ({'A', 'B'}, 'a'): {'A', 'B'},
-            ({'A', 'B'}, 'b'): {'ε'}
-        }
-        F = {{'A'}, {'A', 'B'}, {'ε'}}
-    '''
-
-    def verify(self, w):
         s = self.s0
         for l in w:
-            s2 = self.d.get((frozenset(s), l))
+            s2 = self.d.get((s, l))
             if not s2:
                 return False
-            s = s2
+            s = next(iter(s2))
         return s in self.F
 
-    def _get_nonfinal_states(self):
-        return [str(set(T)) for T in self.S - self.F]
 
-    def _get_final_states(self):
-        return [str(set(T)) for T in self.F]
+    @staticmethod
+    def from_grammar(g: Grammar):
+        '''Convert a *strictly* regular grammar to an NFA.
 
-    def _get_edges(self):
-        e = []
-        for k, v in self.d.items():
-            e.append((str(set(k[0])), str(v), str(k[1])))
-        return e
+        Each rule in the regular grammar is treated as follows:
 
+        1) A -> aB
 
-class NFA(FA):
-    '''
-    Each rule in the regular grammar is treated as follows:
+            - a transition is created: (A, a): B
+            - "a" is added to the alphabet
 
-    1) A -> aB
+        2) A -> a
 
-        - a transition is created: (A, a): B
-        - "a" is added to the alphabet
+            - a transition is created: (A, a): ε
+            - a final state is added: ε
+            - "a" is added to the alphabet
 
-    2) A -> a
+        3) B -> ε
 
-        - a transition is created: (A, a): ε
-        - a final state is added: ε
-        - "a" is added to the alphabet
+            - a final state is added: B
 
-    3) B -> ε
+        For example, the formal grammar::
 
-        - a final state is added: B
+            A -> aA
+            A -> aB
+            A -> ε
+            B -> b
 
-    For example, the formal grammar::
+        is transformed into the following NFA::
 
-        A -> aA
-        A -> aB
-        A -> ε
-        B -> b
-
-    is transformed into the following NFA::
-
-        S = {'B', 'ε', 'A'}
-        A = {'a', 'b'}
-        s0 = 'A'
-        d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-        F = {'ε', 'A'}
-    '''
-
-    def from_grammar(g : Grammar):
-        '''This function only recognizes *strictly* regular grammars'''
+            S = {'B', 'ε', 'A'}
+            A = {'a', 'b'}
+            s0 = 'A'
+            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
+            F = {'ε', 'A'}
+        '''
         assert g.type() == Grammar.Type.REGULAR
         d = defaultdict(set)
         F = set()
@@ -152,7 +127,7 @@ class NFA(FA):
                    A |= {tail[0]}
 
         d = dict(d)  # demote from defaultdict
-        return NFA(S = g.VN | F, A = A, s0 = g.S, d = d, F = F)
+        return FA(S = g.VN | F, A = A, s0 = g.S, d = d, F = F)
 
     def to_grammar(self) -> Grammar:
         VT = {k[1] for k in self.d.keys()}
@@ -168,8 +143,33 @@ class NFA(FA):
 
         return Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
 
-    def to_DFA(self) -> DFA:
-        '''For an explanation of the algo, check out the dragon book.'''
+    def to_DFA(self):
+        '''For an explanation of the algo, check out the dragon book.
+
+        This algorithm is described in the Dragon book.
+
+        Basically, the states in the NFA become sets of states in the DFA.
+
+        For example, the NFA::
+
+            S = {'B', 'ε', 'A'}
+            A = {'a', 'b'}
+            s0 = 'A'
+            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
+            F = {'ε', 'A'}
+
+        is transformed into the following DFA::
+
+            S = {{'A'}, {'A', 'B'}, {'ε'}}
+            A = {'a', 'b'}
+            s0 = {'A'}
+            d = {
+                ({'A'}, 'a'): {{'A', 'B'}},
+                ({'A', 'B'}, 'a'): {{'A', 'B'}},
+                ({'A', 'B'}, 'b'): {{'ε'}}
+            }
+            F = {{'A'}, {'A', 'B'}, {'ε'}}
+        '''
 
         def move(T, a):
             '''Returns the set of states reachable from any state in T via symbol a'''
@@ -186,24 +186,10 @@ class NFA(FA):
                     continue
                 if frozenset(U) not in dstat:
                     dstat[frozenset(U)] = False
-                dtran[(T, a)] = U
+                dtran[(T, a)] = set([frozenset(U)])
 
         F = {T for T in dstat if any(s in self.F for s in T)}
-        return DFA(S = set(dstat.keys()), A = self.A, s0 = {self.s0,}, d = dtran, F = F)
+        return FA(S = set(dstat.keys()), A = self.A, s0 = frozenset({self.s0,}), d = dtran, F = F)
 
     def is_deterministic(self):
        return all([len(l) == 1 for l in self.d.values()])
-
-    def _get_nonfinal_states(self):
-        return self.S - self.F
-
-    def _get_final_states(self):
-        return self.F
-
-    def _get_edges(self):
-        e = []
-        for k, v in self.d.items():
-            for s in v:
-                e.append((k[0], str(s), str(k[1])))
-        return e
-

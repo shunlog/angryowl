@@ -18,6 +18,11 @@ extensions = ['sphinx.ext.autodoc',
 
 autodoc_typehints = "description"
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
+autodoc_default_options = {
+    'members':           True,
+    'undoc-members':     True,
+    'member-order':      'bysource',
+}
 
 templates_path = ['_templates']
 exclude_patterns = []

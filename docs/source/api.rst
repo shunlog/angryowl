@@ -19,10 +19,3 @@ Automata
    :members:
    :inherited-members:
 
-.. autoclass:: angryowl.automata.NFA
-   :members:
-   :inherited-members:
-
-.. autoclass:: angryowl.automata.DFA
-   :members:
-   :inherited-members:

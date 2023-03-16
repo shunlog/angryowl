@@ -1,8 +1,7 @@
 from enum import IntEnum
 
 class Grammar:
-    '''
-    A `formal grammar <https://en.wikipedia.org/wiki/Formal_grammar#Formal_definition>`_
+    ''' A `formal grammar <https://en.wikipedia.org/wiki/Formal_grammar#Formal_definition>`_
     is defined by 4 components:
 
     :param VN: set of nonterminals

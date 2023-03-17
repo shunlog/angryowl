@@ -199,33 +199,23 @@ class FA:
         :param dirname: Directory to which the file will be exported.
         :param fn: Name of the diagram (filename minus extension).
         :returns: Path of the exported file.'''
-
-        def get_nonfinal_states():
-            return (str(s) for s in self.S - self.F)
-
-        def get_final_states():
-            return (str(s) for s in self.F)
-
-        def get_edges():
-            e = []
-            for k, v in self.d.items():
-                for s in v:
-                    e.append((str(k[0]), str(s), str(k[1])))
-            return e
-
         import graphviz
         dot = graphviz.Digraph(fn, format='svg')
         dot.attr(rankdir='LR')
 
-        for s in get_final_states():
+        nonfinal_states = (str(s) for s in self.S - self.F)
+        final_states = (str(s) for s in self.F)
+        edges = [(str(k[0]), str(s), str(k[1])) for k,v in self.d.items() for s in v]
+
+        for s in final_states:
             dot.attr('node', shape='doublecircle')
             dot.node(s)
 
-        for s in get_nonfinal_states():
+        for s in nonfinal_states:
             dot.attr('node', shape='circle')
             dot.node(s)
 
-        for s0, s1, label in get_edges():
+        for s0, s1, label in edges:
             dot.edge(s0, s1, label=label)
 
         fn = dot.render(directory=dirname).replace('\\', '/')

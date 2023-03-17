@@ -13,6 +13,14 @@ def test_type3_grammar():
 
     assert g.type() == GrammarType.REGULAR
 
+    VN = {"q0", "q1"}
+    VT = {1, 2}
+    S = "q0"
+    P = {("q0",): {(1, "q0"), (1, "q1")},
+         ("q1",): {(2,)}}
+    g = Grammar(VN=VN, VT=VT, P=P, S=S)
+    assert g.type() == GrammarType.REGULAR
+
 def test_type1_grammar():
     VN = {"A", "B"}
     VT = {"a", "b"}
@@ -124,7 +132,25 @@ def test_DFA_verify_word():
         w = g.constr_word()
         ic(w)
         assert dfa.verify(w)
-        assert not dfa.verify(w + "!")
+        assert not dfa.verify(w + ["!"])
+
+    VN = {"q0", "q1"}
+    VT = {1, 2}
+    S = "q0"
+    P = {("q0",): {(1, "q0"), (1, "q1")},
+         ("q1",): {(2,)}}
+    g = Grammar(VN=VN, VT=VT, P=P, S=S)
+    ic(g)
+    nfa = FA.from_grammar(g)
+    ic(nfa)
+    dfa = nfa.to_DFA()
+    ic(dfa)
+
+    for _ in range(10):
+        w = g.constr_word()
+        ic(w)
+        assert dfa.verify(w)
+        assert not dfa.verify(w + ["!"])
 
 def test_draw():
     VN = {"A", "B"}

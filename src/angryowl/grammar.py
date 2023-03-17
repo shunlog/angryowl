@@ -1,4 +1,5 @@
 from enum import IntEnum
+from collections.abc import Hashable
 
 class GrammarType(IntEnum):
     '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
@@ -38,9 +39,9 @@ class Grammar:
         S = "A"
     '''
 
-    SymbolsStr = tuple[str]
+    SymbolsStr = tuple[Hashable]
 
-    def __init__(self, VN: set[str], VT: set[str], P: dict[SymbolsStr, set[SymbolsStr]], S: str):
+    def __init__(self, VN: set[Hashable], VT: set[Hashable], P: dict[SymbolsStr, set[SymbolsStr]], S: Hashable):
         self.VN = VN
         self.VT = VT
         self.P = P
@@ -59,10 +60,9 @@ class Grammar:
         '''
 
         def rule_type(head, tail):
-            if len(head) == 1 and \
-                (len(tail) == 0 or \
-                len(tail) == 1 and tail[0] in self.VT or \
-                len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
+            if len(head) == 1 and (len(tail) == 0 or
+                                   len(tail) == 1 and tail[0] in self.VT or
+                                   len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
                 return GrammarType.REGULAR
 
             if len(head) == 1:
@@ -85,8 +85,8 @@ class Grammar:
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
-    def constr_word(self) -> str:
-        '''Assuming a `\*strictly\* regular grammar <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
+    def constr_word(self) -> list:
+        '''Assuming a `*strictly* regular grammar <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
         construct a word using rules from the grammar picked at random.
 
         :returns: A random string that is valid according to the grammar.
@@ -95,15 +95,17 @@ class Grammar:
 
         from random import choice
         s = self.S  # current state
-        w = ""  # word
+        w = []  # word
+
         while True:
             tail = choice(list(self.P[s,]))
             if len(tail) == 2:
-                w += tail[0]
+                w.append(tail[0])
                 s = tail[1]
             elif len(tail) == 1:
-                w += tail[0]
+                w.append(tail[0])
                 break
             elif len(tail) == 0:
                 break
-        return ''.join(w)
+
+        return w

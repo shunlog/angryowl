@@ -1,6 +1,7 @@
 from __future__ import annotations
-from .grammar import Grammar, GrammarType
 from collections import defaultdict
+from collections.abc import Hashable
+from .grammar import Grammar, GrammarType
 
 class FA:
     '''
@@ -14,7 +15,8 @@ class FA:
     :param F: set of final states
     '''
 
-    def __init__(self, S: set[str], A: set[str], s0: str, d: dict[tuple[set[str], str], set[str]], F: set[str]):
+    def __init__(self, S: set[Hashable], A: set[Hashable], s0: Hashable,
+                 d: dict[tuple[set[Hashable], Hashable], set[Hashable]], F: set[Hashable]):
         self.S = S
         self.A = A
         self.s0 = s0
@@ -50,7 +52,7 @@ class FA:
 
     @staticmethod
     def from_grammar(g: Grammar) -> FA:
-        '''Convert a `\*strictly\* regular grammar
+        '''Convert a `*strictly* regular grammar
         <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_
         to an NFA.
 

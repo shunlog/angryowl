@@ -1,174 +1,66 @@
 #!/usr/bin/env python3
+import pytest
 from angryowl.grammar import *
 from angryowl.automata import *
 from icecream import ic
 
-def test_type3_grammar():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    S = "A"
-    P = {("A"): {("a", "B"), ("a", "A"), ()},
-         ("B"): {("b",)}}
-    g = Grammar(VN, VT, P, S)
+tests = [
+    (
+        3,
 
-    assert g.type() == GrammarType.REGULAR
+        Grammar(VN = {"A", "B"},
+                VT = {"a", "b"},
+                S = "A",
+                P = {("A",): {("a", "B"), ("a", "A"), ()},
+                     ("B",): {("b",)}}),
 
-    VN = {"q0", "q1"}
-    VT = {1, 2}
-    S = "q0"
-    P = {("q0",): {(1, "q0"), (1, "q1")},
-         ("q1",): {(2,)}}
-    g = Grammar(VN=VN, VT=VT, P=P, S=S)
-    assert g.type() == GrammarType.REGULAR
+        ('', 'a', 'ab', 'aab', 'aa'),
 
-def test_type1_grammar():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    S = "A"
-    P = {("abAbC"): {("abAbC")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.CONTEXT_SENSITIVE
+        FA(S = {'B', 'ε', 'A'},
+           A = {'a', 'b'},
+           s0 = 'A',
+           d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}},
+           F = {'ε', 'A'}),
 
-    P = {("abAbC"): {("abxxxbC")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.CONTEXT_SENSITIVE
+        False,
 
-    P = {("AbC"): {("xxxbC")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.CONTEXT_SENSITIVE
+        FA(S = {frozenset(['A']), frozenset(['A', 'B']), frozenset(['ε'])},
+           A = {'a', 'b'},
+           s0 = frozenset(['A']),
+           d = {(frozenset(['A']), 'a'): {frozenset(['A', 'B'])},
+                (frozenset(['A', 'B']), 'a'): {frozenset(['A', 'B'])},
+                (frozenset(['A', 'B']), 'b'): {frozenset(['ε'])}},
+           F = {frozenset(['A']),
+                frozenset(['A', 'B']),
+                frozenset(['ε'])}
+           )
+    )
 
-    P = {("bCA"): {("bCB")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.CONTEXT_SENSITIVE
+]
 
-def test_type0_grammar():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    S = "A"
-    P = {("abbC"): {("abAbC")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.UNRESTRICTED_GRAMMAR
+@pytest.mark.parametrize("t, g, wl, nfa, det, dfa", tests)
+class TestClass:
+    def test_grammar_type(self, g, wl, t, nfa, det, dfa):
+        assert g.type() == t
 
-    P = {("abAbC"): {("abbC")}}
-    g = Grammar(VN, VT, P, S)
-    assert g.type() == GrammarType.UNRESTRICTED_GRAMMAR
+    def test_grammar_to_NFA(self, g, wl, t, nfa, det, dfa):
+        test_nfa = FA.from_grammar(g)
+        assert nfa == test_nfa
 
-def test_grammar_to_NFA():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    P = {("A"): {("a", "B"), ("a", "A"), ()},
-        ("B"): {("b",)}}
-    S = "A"
-    g = Grammar(VN, VT, P, S)
-    nfa =FA.from_grammar(g)
+    def test_is_deterministic(self, g, wl, t, nfa, det, dfa):
+        assert nfa.is_deterministic() == det
 
-    S = {'B', 'ε', 'A'}
-    A = {'a', 'b'}
-    s0 = 'A'
-    d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-    F = {'ε', 'A'}
+    def test_NFA_to_DFA(self, g, wl, t, nfa, det, dfa):
+        test_dfa = nfa.to_DFA()
+        assert dfa == test_dfa
 
-    assert nfa.S == S
-    assert nfa.A == A
-    assert nfa.s0 == s0
-    assert nfa.d == d
-    assert nfa.F == F
+    def test_DFA_verify_word(self, g, wl, t, nfa, det, dfa):
+        assert all(dfa.verify(w) for w in wl)
 
-def test_is_deterministic():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    P = {("A"): {("a", "B"), ("a", "A"), ()},
-        ("B"): {("b",)}}
-    S = "A"
-    g = Grammar(VN, VT, P, S)
-    nfa =FA.from_grammar(g)
-    assert not nfa.is_deterministic()
+    def test_grammar_constr_word(self, g, wl, t, nfa, det, dfa):
+        assert all(dfa.verify(g.constr_word()) for _ in range(100))
 
-    P = {("A"): {("b", "B"), ("a", "A"), ()},
-        ("B"): {("b",)}}
-    g = Grammar(VN, VT, P, S)
-    nfa =FA.from_grammar(g)
-    assert nfa.is_deterministic()
-
-def test_NFA_to_DFA():
-    S = {"q0","q1"}
-    A = {"a","b"}
-    s0 = "q0"
-    F = {"ε"}
-    d = {("q0","a"): {"q1", "q0"},
-         ("q1","b"): {"ε"}}
-
-    nfa =FA(S=S, A=A, s0=s0, F=F, d=d)
-    dfa = nfa.to_DFA()
-
-    S = {frozenset({"q0"}), frozenset({"q0", "q1"}), frozenset({'ε'})}
-    A = {'a', 'b'}
-    s0 = {"q0"}
-    d = {(frozenset({"q0"}), "a"): {frozenset({"q0", "q1"})},
-         (frozenset({"q0", "q1"}), "a"): {frozenset({"q0", "q1"})},
-         (frozenset({"q0", "q1"}), "b"): {frozenset({"ε"})}}
-    F = {frozenset({'ε'})}
-
-    assert dfa.S == S
-    assert dfa.A == A
-    assert dfa.s0 == s0
-    assert dfa.d == d
-    assert dfa.F == F
-
-def test_DFA_verify_word():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    S = "A"
-    P = {("A",): {("a", "B"), ("a", "A")},
-         ("B",): {("b",)}}
-    g = Grammar(VN=VN, VT=VT, P=P, S=S)
-    ic(g)
-    nfa = FA.from_grammar(g)
-    ic(nfa)
-    dfa = nfa.to_DFA()
-    ic(dfa)
-
-    for _ in range(10):
-        w = g.constr_word()
-        ic(w)
-        assert dfa.verify(w)
-        assert not dfa.verify(w + ["!"])
-
-    VN = {"q0", "q1"}
-    VT = {1, 2}
-    S = "q0"
-    P = {("q0",): {(1, "q0"), (1, "q1")},
-         ("q1",): {(2,)}}
-    g = Grammar(VN=VN, VT=VT, P=P, S=S)
-    ic(g)
-    nfa = FA.from_grammar(g)
-    ic(nfa)
-    dfa = nfa.to_DFA()
-    ic(dfa)
-
-    for _ in range(10):
-        w = g.constr_word()
-        ic(w)
-        assert dfa.verify(w)
-        assert not dfa.verify(w + ["!"])
-
-def test_draw():
-    VN = {"A", "B"}
-    VT = {"a", "b"}
-    S = "A"
-    P = {("A",): {("a", "B"), ("a", "A")},
-         ("B",): {("b",)}}
-    g = Grammar(VN=VN, VT=VT, P=P, S=S)
-    ic(g)
-    nfa = FA.from_grammar(g)
-    ic(nfa)
-    dfa = nfa.to_DFA()
-    ic(dfa)
-
-    from os.path import isfile
-
-    nfa_fn = nfa.draw('/tmp/', 'nfa')
-    assert isfile(nfa_fn)
-
-    dfa_fn = dfa.draw('/tmp/', 'dfa')
-    assert isfile(dfa_fn)
+    def test_draw(self, g, wl, t, nfa, det, dfa):
+        from os.path import isfile
+        assert isfile(nfa.draw('/tmp/', 'nfa'))
+        assert isfile(dfa.draw('/tmp/', 'dfa'))

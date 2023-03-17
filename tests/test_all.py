@@ -4,6 +4,18 @@ from angryowl.grammar import *
 from angryowl.automata import *
 from icecream import ic
 
+'''
+The test data components are:
+
+- grammar type
+- Grammar
+- list of words valid according to the grammar (tuples of symbols)
+- FA constructed from Grammar (might be nondeterministic)
+- whether the previous FA is deterministic or not
+- DFA constructed from the previous FA, states must be represented by frozenset()
+
+'''
+
 tests = [
     (
         3,

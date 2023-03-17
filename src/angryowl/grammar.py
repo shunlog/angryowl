@@ -50,6 +50,14 @@ class Grammar:
     def __repr__(self):
         return ', '.join([str(x) for x in [self.VN, self.VT, self.P, self.S]])
 
+    def __eq__(self, other):
+
+        if isinstance(other, Grammar):
+            return (self.VN == other.VN and
+                    self.VT == other.VT and
+                    self.S == other.S and
+                    self.P == other.P)
+
     def type(self) -> GrammarType:
         '''Returns the type of the grammar object according to the
         `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.

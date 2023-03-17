@@ -64,19 +64,24 @@ class Grammar:
                 len(tail) == 1 and tail[0] in self.VT or \
                 len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
                 return GrammarType.REGULAR
-            elif len(head) == 1:
+
+            if len(head) == 1:
                 return GrammarType.CONTEXT_FREE
-            else:
-                for i,l in enumerate(head):
-                    if l not in self.VN:
-                        continue
-                    a = head[:i]
-                    b = head[i+1:]
-                    if a == tail[:i] and \
-                       b == (tail[-len(b):] if len(b) != 0 else '') and \
-                       len(head) <= len(tail):
-                        return GrammarType.CONTEXT_SENSITIVE
-                return GrammarType.UNRESTRICTED_GRAMMAR
+
+            for i,l in enumerate(head):
+
+                if l not in self.VN:
+                    continue
+
+                lh = head[:i]  # left context in head
+                rh = head[i+1:]  # right context in head
+                lt = tail[:i]  # left context in tail
+                rt = tail[-len(rh):] if len(rh) != 0 else ''  # right context in tail
+
+                if lh == lt and rh == rt and len(head) <= len(tail):
+                    return GrammarType.CONTEXT_SENSITIVE
+
+            return GrammarType.UNRESTRICTED_GRAMMAR
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 

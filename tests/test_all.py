@@ -9,33 +9,27 @@ The test data components are:
 
 - Grammar type
 - Grammar
-- list of words valid according to the Grammar (tuples of symbols)
+- list of example words valid according to the Grammar (tuples of symbols)
 - FA constructed from Grammar (might be nondeterministic)
 - whether the previous FA is deterministic or not
 - DFA constructed from the previous FA, states must be represented by frozenset()
-
 '''
 
 tests = [
     (
         3,
-
         Grammar(VN = {"A", "B"},
                 VT = {"a", "b"},
                 S = "A",
                 P = {("A",): {("a", "B"), ("a", "A"), ()},
                      ("B",): {("b",)}}),
-
         ('', 'a', 'ab', 'aab', 'aa'),
-
         FA(S = {'B', 'ε', 'A'},
            A = {'a', 'b'},
            s0 = 'A',
            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}},
            F = {'ε', 'A'}),
-
         False,
-
         FA(S = {frozenset(['A']), frozenset(['A', 'B']), frozenset(['ε'])},
            A = {'a', 'b'},
            s0 = frozenset(['A']),
@@ -46,12 +40,12 @@ tests = [
                 frozenset(['A', 'B']),
                 frozenset(['ε'])}
            )
-    )
+    ),
 
 ]
 
 @pytest.mark.parametrize("t, g, wl, nfa, det, dfa", tests)
-class TestClass:
+class TestRegularGrammars:
     def test_Grammar_type(self, g, wl, t, nfa, det, dfa):
         assert g.type() == t
 
@@ -80,3 +74,19 @@ class TestClass:
         from os.path import isfile
         assert isfile(nfa.draw('/tmp/', 'nfa'))
         assert isfile(dfa.draw('/tmp/', 'dfa'))
+
+
+tests = [(0, Grammar(VN = {},
+                     VT = {},
+                     S = "",
+                     P = {("A", "B"): {()}}))
+         ]
+
+@pytest.mark.parametrize("t, g", tests)
+class TestNonRegularGrammars:
+    def test_grammar_type(self, t, g):
+        assert g.type() == t
+
+    def test_grammar_to_FA(self, t, g):
+        with pytest.raises(AssertionError):
+            FA.from_grammar(g)

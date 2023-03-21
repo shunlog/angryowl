@@ -176,6 +176,9 @@ class FA:
             '''Returns the set of states reachable from any state in T via symbol a'''
             return {s for S in T if (u := self.d.get((S, a))) for s in u}
 
+        if self.is_deterministic():
+            return self
+
         dstat = {frozenset({self.s0}): False} # Dstates (store marked/unmarked sets of states T)
         dtran = {} # Dtran (transition table)
         while not all(dstat.values()):

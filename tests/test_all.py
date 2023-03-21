@@ -42,6 +42,31 @@ tests = [
            )
     ),
 
+    (
+        3,
+        Grammar(VN = {1, 2, 3},
+                VT = {True, False},
+                S = 1,
+                P = {(1,): {(), (True, 2)},
+                     (2,): {(False, 3)},
+                     (3,): {(True, 1)}}),
+        ((), (True, False, True), (True, False, True, True, False, True)),
+        FA(S = {1, 2, 3},
+           A = {True, False},
+           s0 = 1,
+           d = {(1, True): {2},
+                (2, False): {3},
+                (3, True): {1}},
+           F = {1}),
+        True,
+        FA(S = {1, 2, 3},
+           A = {True, False},
+           s0 = 1,
+           d = {(1, True): {2},
+                (2, False): {3},
+                (3, True): {1}},
+           F = {1})
+    ),
 ]
 
 @pytest.mark.parametrize("t, g, wl, nfa, det, dfa", tests)

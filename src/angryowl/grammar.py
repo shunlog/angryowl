@@ -1,5 +1,5 @@
 from enum import IntEnum
-from collections.abc import Hashable
+from collections.abc import Hashable, Iterable
 
 class GrammarType(IntEnum):
     '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
@@ -64,10 +64,10 @@ class Grammar:
 
         If we determine the type of each production rule in the grammar,
         then the type of the grammar will be the least restrictive type among them
-        (i.e. with the lowest type number).
+        (i.e. the minimum number).
         '''
 
-        def rule_type(head, tail):
+        def rule_type(head: Iterable[Hashable], tail: Iterable[Hashable]) -> GrammarType:
             if len(head) == 1 and (len(tail) == 0 or
                                    len(tail) == 1 and tail[0] in self.VT or
                                    len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
@@ -93,7 +93,7 @@ class Grammar:
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
-    def constr_word(self) -> list:
+    def constr_word(self) -> list[Hashable]:
         '''Assuming a `*strictly* regular grammar <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
         construct a word using rules from the grammar picked at random.
 

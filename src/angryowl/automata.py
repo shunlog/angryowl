@@ -1,6 +1,6 @@
 from __future__ import annotations
 from collections import defaultdict
-from collections.abc import Hashable
+from collections.abc import Hashable, Iterable
 from .grammar import Grammar, GrammarType
 
 class FA:
@@ -42,7 +42,7 @@ class FA:
         return all([len(l) == 1 for l in self.d.values()])
 
 
-    def verify(self, w) -> bool:
+    def verify(self, w: Iterable[Hashable]) -> bool:
         '''Assuming the automaton is deterministic,
         verify whether it accepts the given string.
 
@@ -172,7 +172,7 @@ class FA:
             F = {{'A'}, {'A', 'B'}, {'ε'}}
         '''
 
-        def move(T, a):
+        def move(T: set[Hashable], a: Hashable):
             '''Returns the set of states reachable from any state in T via symbol a'''
             return {s for S in T if (u := self.d.get((S, a))) for s in u}
 
@@ -196,14 +196,14 @@ class FA:
         return FA(S = set(dstat.keys()), A = self.A, s0 = frozenset({self.s0,}), d = dtran, F = F)
 
 
-    def draw(self, dirname, fn) -> str:
-        '''Visualize the FA diagram using `graphviz <https://graphviz.org/>`_.
+    def draw(self, dirname: str, name: str) -> str:
+        '''Export the FA to a diagram in SVG using `graphviz <https://graphviz.org/>`_.
 
-        :param dirname: Directory to which the file will be exported.
-        :param fn: Name of the diagram (filename minus extension).
-        :returns: Path of the exported file.'''
+        :param dirname: Directory in which the file will be created.
+        :param name: Name of the diagram, which will become the filename.
+        :returns: Full path of the exported file.'''
         import graphviz
-        dot = graphviz.Digraph(fn, format='svg')
+        dot = graphviz.Digraph(name, format='svg')
         dot.attr(rankdir='LR')
 
         nonfinal_states = (str(s) for s in self.S - self.F)
@@ -221,5 +221,5 @@ class FA:
         for s0, s1, label in edges:
             dot.edge(s0, s1, label=label)
 
-        fn = dot.render(directory=dirname).replace('\\', '/')
-        return fn
+        name = dot.render(directory=dirname).replace('\\', '/')
+        return name

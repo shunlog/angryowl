@@ -2,6 +2,7 @@
 import pytest
 from angryowl.grammar import *
 from angryowl.automata import *
+from angryowl.lexer import *
 from icecream import ic
 
 '''
@@ -115,3 +116,25 @@ class TestNonRegularGrammars:
     def test_grammar_to_FA(self, t, g):
         with pytest.raises(AssertionError):
             FA.from_grammar(g)
+
+class TestLexer:
+    def test_brainfuck(self):
+        g = Grammar(VN = {"file", "sl", "statement", "opcode"},
+                VT = {"GT", "LT", "PLUS", "MINUS", "DOT", "COMMA", "LPAREN", "RPAREN"},
+                S = "file",
+                P = {("file",) : {("sl", "EOF")},
+                     ("sl",): {("sl", "statement"), ()},
+                     ("statement",): {("opcode",), ("LPAREN", "sl", "RPAREN")},
+                     ("opcode", ): {("GT", ), ("LT", ), ("PLUS", ), ("MINUS", ), ("DOT", ), ("COMMA",)},
+                     ("GT", ): {(">",)},
+                     ("LT", ): {("<",)},
+                     ("PLUS", ): {("+",)},
+                     ("MINUS", ): {("-",)},
+                     ("DOT", ): {(".",)},
+                     ("COMMA", ): {(",",)},
+                     ("LPAREN", ): {("[",)},
+                     ("RPAREN", ): {("]",)}})
+
+        prog = "+.>"
+        tokens = [("PLUS",), ("DOT",), ("GT",)]
+        assert get_tokens(g, prog) == tokens

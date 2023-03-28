@@ -138,3 +138,34 @@ class TestLexer:
         prog = "+.>"
         tokens = [("PLUS",), ("DOT",), ("GT",)]
         assert get_tokens(g, prog) == tokens
+
+    def test_expr(self):
+        # From p. 72 in the Dragon book
+
+        g = Grammar(VN = {"file", "sl", "statement", "opcode"},
+                    VT = {"GT", "LT", "PLUS", "MINUS", "DOT", "COMMA", "LPAREN", "RPAREN"},
+                    S = "file",
+                    P = {("expr",): {("expr", "PLUS", "term"),
+                                     ("expr", "MINUS", "term"),
+                                     ("term",)},
+                         ("term",): {("term", "MUL", "factor"),
+                                     ("term", "DIV", "factor"),
+                                     ("factor",)},
+                         ("factor",): {("number",),
+                                       ("LPAREN", "expr", "RPAREN")},
+                         ("number",): {("DIGIT",),
+                                       ("number", "DIGIT")},
+                         ("PLUS",): {("+",)},
+                         ("MINUS",): {("-",)},
+                         ("MUL",): {("*",)},
+                         ("DIV",): {("/",)},
+                         ("LPAREN",): {("(",)},
+                         ("RPAREN",): {(")",)},
+                         ("DIGIT",): {("0",), ("1",), ("2",), ("3",), ("4",),
+                                      ("5",), ("6",), ("7",), ("8",), ("9",)}})
+
+        prog = "50*(10+20)"
+
+        tokens = [("number", 50), ("MUL",), ("LPAREN",),
+                  ("number", 10), ("PLUS",), ("number", 20), ("LPAREN",)]
+        assert get_tokens(g, prog) == tokens

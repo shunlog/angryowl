@@ -75,7 +75,7 @@ class TestRegularGrammars:
         assert g.type() == t
 
     def test_Grammar_to_NFA(self, g, wl, t, nfa, det, dfa):
-        test_nfa = FA.from_grammar(g)
+        test_nfa = g.to_NFA()
         assert nfa == test_nfa
 
     def test_NFA_to_Grammar(self, g, wl, t, nfa, det, dfa):
@@ -114,4 +114,4 @@ class TestNonRegularGrammars:
 
     def test_grammar_to_FA(self, t, g):
         with pytest.raises(AssertionError):
-            FA.from_grammar(g)
+            g.to_NFA()

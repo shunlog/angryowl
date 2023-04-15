@@ -1,5 +1,7 @@
 from enum import IntEnum
+from collections import defaultdict
 from collections.abc import Hashable, Iterable
+from . import automata
 
 class GrammarType(IntEnum):
     '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
@@ -117,3 +119,67 @@ class Grammar:
                 break
 
         return w
+
+
+    def to_NFA(self) -> automata.FA:
+        '''Convert a `*strictly* regular grammar
+        <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_
+        to an NFA.
+
+        There are 3 forms of production rules in a strictly regular grammar.
+        The algorithm basically executes a list of actions for each production rule:
+
+        1) A -> aB
+
+            - a transition is created: (A, a): B
+            - "a" is added to the alphabet
+
+        2) A -> a
+
+            - a transition is created: (A, a): ε
+            - a final state is added: ε
+            - "a" is added to the alphabet
+
+        3) B -> ε
+
+            - a final state is added: B
+
+        For example, the formal grammar::
+
+            A -> aA
+            A -> aB
+            A -> ε
+            B -> b
+
+        is transformed into the following NFA::
+
+            S = {'B', 'ε', 'A'}
+            A = {'a', 'b'}
+            s0 = 'A'
+            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
+            F = {'ε', 'A'}
+
+        :param g: A *strictly* regular grammar.
+        :returns: An :class:`angryowl.automata.FA` instance.
+        '''
+        assert self.type() == GrammarType.REGULAR
+        d = defaultdict(set)
+        F = set()
+        A = set()
+
+        for head, tails in self.P.items():
+            head = head[0]  # in a regular grammar, head is a single nonterminal
+
+            for tail in tails:
+               if len(tail) == 0:
+                   F |= {head}
+               elif len(tail) == 1:
+                   d[(head, tail[0])] |= {"ε"}
+                   F |= {"ε"}
+                   A |= {tail[0]}
+               elif len(tail) == 2:
+                   d[(head, tail[0])] |= {tail[1]}
+                   A |= {tail[0]}
+
+        d = dict(d)  # demote from defaultdict
+        return automata.FA(S = self.VN | F, A = A, s0 = self.S, d = d, F = F)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Hashable, Iterable
-from .grammar import Grammar, GrammarType
+from . import grammar
 
 class FA:
     '''
@@ -59,71 +59,8 @@ class FA:
         return s in self.F
 
 
-    @staticmethod
-    def from_grammar(g: Grammar) -> FA:
-        '''Convert a `*strictly* regular grammar
-        <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_
-        to an NFA.
 
-        There are 3 forms of production rules in a strictly regular grammar.
-        The algorithm basically executes a list of actions for each production rule:
-
-        1) A -> aB
-
-            - a transition is created: (A, a): B
-            - "a" is added to the alphabet
-
-        2) A -> a
-
-            - a transition is created: (A, a): ε
-            - a final state is added: ε
-            - "a" is added to the alphabet
-
-        3) B -> ε
-
-            - a final state is added: B
-
-        For example, the formal grammar::
-
-            A -> aA
-            A -> aB
-            A -> ε
-            B -> b
-
-        is transformed into the following NFA::
-
-            S = {'B', 'ε', 'A'}
-            A = {'a', 'b'}
-            s0 = 'A'
-            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-            F = {'ε', 'A'}
-
-        :param g: A *strictly* regular grammar.
-        :returns: An :class:`angryowl.automata.FA` instance.
-        '''
-        assert g.type() == GrammarType.REGULAR
-        d = defaultdict(set)
-        F = set()
-        A = set()
-
-        for head, tails in g.P.items():
-            head = head[0]  # in a regular grammar, head is a single nonterminal
-
-            for tail in tails:
-               if len(tail) == 0:
-                   F |= {head}
-               elif len(tail) == 1:
-                   d[(head, tail[0])] |= {"ε"}
-                   F |= {"ε"}
-                   A |= {tail[0]}
-               elif len(tail) == 2:
-                   d[(head, tail[0])] |= {tail[1]}
-                   A |= {tail[0]}
-
-        d = dict(d)  # demote from defaultdict
-        return FA(S = g.VN | F, A = A, s0 = g.S, d = d, F = F)
-
-    def to_grammar(self) -> Grammar:
+    def to_grammar(self) -> grammar.Grammar:
         '''The inverse of :func:`angryowl.automata.FA.from_grammar`.
 
         :returns: a strictly regular grammar corresponding to the current FA.
@@ -141,7 +78,7 @@ class FA:
             P[s,] |= {tuple()}
         P = dict(P)
 
-        return Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
+        return grammar.Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
 
 
     def to_DFA(self):

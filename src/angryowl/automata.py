@@ -81,7 +81,7 @@ class FA:
         return grammar.Grammar(VN = self.S - {"ε"}, VT = VT, P = P, S = self.s0)
 
 
-    def to_DFA(self):
+    def to_DFA(self) -> FA:
         '''If this FA is nondeterministic, convert it to a deterministic one.
 
         Basically, the states in the NFA become sets of states in the DFA.

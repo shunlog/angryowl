@@ -61,7 +61,7 @@ class FA:
 
 
     def to_grammar(self) -> grammar.Grammar:
-        '''The inverse of :func:`angryowl.automata.FA.from_grammar`.
+        '''Convert the FA to a regular grammar.
 
         :returns: a strictly regular grammar corresponding to the current FA.
         '''
@@ -84,29 +84,29 @@ class FA:
     def to_DFA(self):
         '''If this FA is nondeterministic, convert it to a deterministic one.
 
-        See the `Dragon book <https://suif.stanford.edu/dragonbook/>`_
-        for a better explanation of the algorithm.
-        In short, the states in the NFA become sets of states in the DFA.
+        Basically, the states in the NFA become sets of states in the DFA.
+        For a better explanation of the algorithm
+        see the `Dragon book <https://suif.stanford.edu/dragonbook/>`_.
 
         For example, the NFA::
 
-            S = {'B', 'ε', 'A'}
-            A = {'a', 'b'}
-            s0 = 'A'
-            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-            F = {'ε', 'A'}
+            FA( S = {'B', 'ε', 'A'},
+                A = {'a', 'b'},
+                s0 = 'A',
+                d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}},
+                F = {'ε', 'A'})
 
         is transformed into the following DFA::
 
-            S = {{'A'}, {'A', 'B'}, {'ε'}}
-            A = {'a', 'b'}
-            s0 = {'A'}
-            d = {
-                ({'A'}, 'a'): {{'A', 'B'}},
-                ({'A', 'B'}, 'a'): {{'A', 'B'}},
-                ({'A', 'B'}, 'b'): {{'ε'}}
-            }
-            F = {{'A'}, {'A', 'B'}, {'ε'}}
+            FA( S = {{'A'}, {'A', 'B'}, {'ε'}},
+                A = {'a', 'b'},
+                s0 = {'A'},
+                d = {
+                    ({'A'}, 'a'): {{'A', 'B'}},
+                    ({'A', 'B'}, 'a'): {{'A', 'B'}},
+                    ({'A', 'B'}, 'b'): {{'ε'}}
+                },
+                F = {{'A'}, {'A', 'B'}, {'ε'}})
         '''
 
         def move(T: set[Hashable], a: Hashable):

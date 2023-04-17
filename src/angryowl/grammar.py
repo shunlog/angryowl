@@ -5,7 +5,7 @@ from . import automata
 
 class GrammarType(IntEnum):
     '''Grammar classes according to the `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.'''
-    UNRESTRICTED_GRAMMAR = 0
+    UNRESTRICTED = 0
     CONTEXT_SENSITIVE = 1
     CONTEXT_FREE = 2
     REGULAR = 3
@@ -23,22 +23,22 @@ class Grammar:
     The list of productions is represented by a dictionary,
     each rule being a mapping of a string of symbols onto another string of symbols.
 
-    For example, the formal grammar::
+    For example, the following formal grammar::
 
         A -> aA
         A -> aB
         A -> ε
         B -> b
 
-    Is represented by the following variables::
+    Is represented in this way::
 
-        VN = {"A", "B"}
-        VT = {"a", "b"}
-        P = {
-            ("A",): {("a", "B"), ("a", "A"), ()},
-            ("B",): {("b",)}
-        }
-        S = "A"
+        Grammar(VN = {"A", "B"},
+                VT = {"a", "b"},
+                P = {
+                    ("A",): {("a", "B"), ("a", "A"), ()},
+                    ("B",): {("b",)}
+                },
+                S = "A")
     '''
 
     SymbolsStr = tuple[Hashable]
@@ -91,7 +91,7 @@ class Grammar:
                 if lh == lt and rh == rt and len(head) <= len(tail):
                     return GrammarType.CONTEXT_SENSITIVE
 
-            return GrammarType.UNRESTRICTED_GRAMMAR
+            return GrammarType.UNRESTRICTED
 
         return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
 
@@ -153,11 +153,11 @@ class Grammar:
 
         is transformed into the following NFA::
 
-            S = {'B', 'ε', 'A'}
-            A = {'a', 'b'}
-            s0 = 'A'
-            d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}}
-            F = {'ε', 'A'}
+            FA( S = {'B', 'ε', 'A'},
+                A = {'a', 'b'},
+                s0 = 'A',
+                d = {('A', 'a'): {'A', 'B'}, ('B', 'b'): {'ε'}},
+                F = {'ε', 'A'})
 
         :param g: A *strictly* regular grammar.
         :returns: An :class:`angryowl.automata.FA` instance.

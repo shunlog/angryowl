@@ -23,8 +23,10 @@ class FA:
         self.d = d
         self.F = F
 
+
     def __repr__(self):
         return ', '.join([str(x) for x in [self.S, self.A, self.s0, self.d, self.F]])
+
 
     def __eq__(self, other):
 
@@ -34,6 +36,7 @@ class FA:
                     self.s0 == other.s0 and
                     self.d == other.d and
                     self.F == other.F)
+
 
     def is_deterministic(self) -> bool:
         '''See what determinism means on `wikipedia <https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton#>`_.
@@ -57,7 +60,6 @@ class FA:
                 return False
             s = next(iter(s2))
         return s in self.F
-
 
 
     def to_grammar(self) -> grammar.Grammar:

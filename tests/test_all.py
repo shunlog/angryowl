@@ -115,3 +115,21 @@ class TestNonRegularGrammars:
     def test_grammar_to_FA(self, t, g):
         with pytest.raises(AssertionError):
             g.to_NFA()
+
+class TestGrammars:
+    g1 = Grammar(VN = {'A', 'B'},
+                 VT = {'a', 'b'},
+                 S = 'A',
+                 P = {('A', 'B'): {('a'), ('a', 'A'), ()},
+                      ('B',): {('b',)},
+                      ('B', 'A'): {}})
+    g1_prules = {
+        (('A', 'B'), ('a')),
+        (('A', 'B'), ('a', 'A')),
+        (('A', 'B'), ()),
+        (('B',), ('b',))
+    }
+
+    @pytest.mark.parametrize("g, production_rules", [(g1, g1_prules)])
+    def test_producion_rules(self, g, production_rules):
+        assert set(g.production_rules()) == production_rules

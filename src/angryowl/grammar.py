@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Generator
 from collections import defaultdict
 from collections.abc import Hashable, Iterable
 from . import automata
@@ -60,6 +61,12 @@ class Grammar:
                     self.S == other.S and
                     self.P == other.P)
 
+    def production_rules(self) -> Generator[tuple[SymbolsStr, SymbolsStr], None, None]:
+        for left, rights in self.P.items():
+            for right in rights:
+                yield left, right
+
+
     def type(self) -> GrammarType:
         '''Returns the type of the grammar object according to the
         `Chomsky hierarchy <https://en.wikipedia.org/wiki/Chomsky_hierarchy>`_.
@@ -93,7 +100,7 @@ class Grammar:
 
             return GrammarType.UNRESTRICTED
 
-        return min([rule_type(h, t) for h in self.P.keys() for t in self.P[h]])
+        return min(rule_type(h, t) for h, t in self.production_rules())
 
     def constr_word(self) -> list[Hashable]:
         '''Assuming a `*strictly* regular grammar <https://en.wikipedia.org/wiki/Regular_grammar#Strictly_regular_grammars>`_,
@@ -167,19 +174,17 @@ class Grammar:
         F = set()
         A = set()
 
-        for head, tails in self.P.items():
-            head = head[0]  # in a regular grammar, head is a single nonterminal
-
-            for tail in tails:
-               if len(tail) == 0:
-                   F |= {head}
-               elif len(tail) == 1:
-                   d[(head, tail[0])] |= {"ε"}
-                   F |= {"ε"}
-                   A |= {tail[0]}
-               elif len(tail) == 2:
-                   d[(head, tail[0])] |= {tail[1]}
-                   A |= {tail[0]}
+        for left, right in self.production_rules():
+            left = left[0]  # in a regular grammar, left is a single nonterminal
+            if len(right) == 0:
+                F |= {left}
+            elif len(right) == 1:
+                d[(left, right[0])] |= {"ε"}
+                F |= {"ε"}
+                A |= {right[0]}
+            elif len(right) == 2:
+                d[(left, right[0])] |= {right[1]}
+                A |= {right[0]}
 
         d = dict(d)  # demote from defaultdict
         return automata.FA(S = self.VN | F, A = A, s0 = self.S, d = d, F = F)

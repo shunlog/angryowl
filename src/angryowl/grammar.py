@@ -77,12 +77,13 @@ class Grammar:
         '''
 
         def rule_type(head: Iterable[Hashable], tail: Iterable[Hashable]) -> GrammarType:
-            if len(head) == 1 and (len(tail) == 0 or
-                                   len(tail) == 1 and tail[0] in self.VT or
-                                   len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
+            if len(head) == 1 and head[0] in self.VN \
+               and (len(tail) == 0 or
+                    len(tail) == 1 and tail[0] in self.VT or
+                    len(tail) == 2 and tail[0] in self.VT and tail[1] in self.VN):
                 return GrammarType.REGULAR
 
-            if len(head) == 1:
+            if len(head) == 1 and head[0] in self.VN:
                 return GrammarType.CONTEXT_FREE
 
             for i,l in enumerate(head):

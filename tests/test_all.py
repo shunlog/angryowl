@@ -101,10 +101,15 @@ class TestRegularGrammars:
         assert isfile(dfa.draw('/tmp/', 'dfa'))
 
 
-tests = [(0, Grammar(VN = {},
+tests = [(0, Grammar(VN = {'A', 'B'},
                      VT = {},
                      S = "",
-                     P = {("A", "B"): {()}}))
+                     P = {("A", "B"): {()}})),
+         # Check that context-free grammars require non-terminals in left side
+         (0, Grammar(VN = {'A'},
+                     VT = {'a'},
+                     S = "S",
+                     P = {("a"): {()}}))
          ]
 
 @pytest.mark.parametrize("t, g", tests)

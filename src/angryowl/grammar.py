@@ -55,7 +55,12 @@ class Grammar:
 
 
     def __repr__(self):
-        return ', '.join([str(x) for x in [self.VN, self.VT, self.P, self.S]])
+        s = "{"
+        for left, right in self.production_rules():
+            s += "{} -> {}, ".format(' '.join(left), ' '.join(right))
+        s = s[:-2]
+        s += "}"
+        return s
 
 
     def __eq__(self, other):

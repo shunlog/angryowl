@@ -5,6 +5,8 @@
 
 Welcome to angryowl's documentation!
 ====================================
+Angryowl is a python library that implements a few data structures and algorithms from formal language theory
+(e.g. formal grammars, finite automata, conversion from one to another, etc.).
 
 .. toctree::
    :maxdepth: 2
@@ -12,9 +14,6 @@ Welcome to angryowl's documentation!
 
 API Reference
 -------------
-
-If you are looking for information on a specific function, class or
-method, this part of the documentation is for you.
 
 .. toctree::
    :maxdepth: 2

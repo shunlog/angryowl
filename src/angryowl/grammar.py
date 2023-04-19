@@ -315,14 +315,25 @@ class Grammar:
 
 
     def _UNIT(self):
-        P2 = defaultdict(set)
+        def replace():
+            replaced = False
+            P2 = defaultdict(set)
 
-        for left, right in self.production_rules():
-            if len(right) == 1 and right[0] in self.VN:
-                P2[left] |= P2[right]
-                continue
-            P2[left].add(right)
-        self.P = dict(P2)
+            for left, right in self.production_rules():
+                if len(right) == 1 and right[0] in self.VN:
+                    replaced = True
+                    P2[left] |= self.P[right]
+                    print(left, right, P2[left])
+                    continue
+                P2[left].add(right)
+
+            self.P = dict(P2)
+            return replaced
+
+        while True:
+            if not replace():
+                break
+
 
 
     def _is_nullable(self, s):

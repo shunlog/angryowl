@@ -1,5 +1,6 @@
 from __future__ import annotations
 from enum import IntEnum
+from copy import deepcopy
 from typing import Generator
 from collections import defaultdict
 from collections.abc import Hashable, Iterable
@@ -364,13 +365,14 @@ class Grammar:
         '''
         assert self.type() >= GrammarType.CONTEXT_FREE
 
-        self._START()
-        self._TERM()
-        self._BIN()
-        self._DEL()
-        self._UNIT()
+        g = deepcopy(self)
+        g._START()
+        g._TERM()
+        g._BIN()
+        g._DEL()
+        g._UNIT()
 
-        return self
+        return g
 
 
     def is_in_normal_form(self) -> bool:

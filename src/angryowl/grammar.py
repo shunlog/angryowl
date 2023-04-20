@@ -99,10 +99,10 @@ class Grammar:
                 return GrammarType.CONTEXT_FREE
 
             for i,l in enumerate(head):
-
+                # for every nonterminal "A" in head
+                # check if it satisfies αAβ → αγβ
                 if l not in self.VN:
                     continue
-
                 lh = head[:i]  # left context in head
                 rh = head[i+1:]  # right context in head
                 lt = tail[:i]  # left context in tail
@@ -376,6 +376,7 @@ class Grammar:
         assert self.type() >= GrammarType.CONTEXT_FREE
 
         g = deepcopy(self)
+        # all these procedures are explained on the wikipedia page
         g._START()
         g._TERM()
         g._BIN()

@@ -323,7 +323,6 @@ class Grammar:
                 if len(right) == 1 and right[0] in self.VN:
                     replaced = True
                     P2[left] |= self.P[right]
-                    print(left, right, P2[left])
                     continue
                 P2[left].add(right)
 

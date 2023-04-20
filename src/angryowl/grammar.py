@@ -413,18 +413,18 @@ class Grammar:
         '''Export to LaTeX string in the widely used grammar notation as a list of four sets.'''
         s = ""
 
-        s += r'\\begin{alignat*}{1}'
+        s += r'\begin{alignat*}{1}'
 
-        s += r'V_N &= \\{' + ','.join(self.VN) + r'\\} \\\\ '
-        s += r'V_T &= \\{' + ','.join(self.VT) + r'\\} \\\\ '
-        s += r'S &= \\{' + self.S + r'\\} \\\\ '
+        s += r'V_N &= \{' + ','.join(self.VN) + r'\} \\ '
+        s += r'V_T &= \{' + ','.join(self.VT) + r'\} \\ '
+        s += r'S &= \{' + self.S + r'\} \\ '
 
-        s += r'P &= \\{ \\\\'
+        s += r'P &= \{ \\'
         ls = []
         for left, rights in self.P.items():
             ls.append(r'&' + ''.join(left) + r' → ' + (' | '.join(' '.join(right) if len(right) != 0 else 'ε' for right in rights)))
-        s  += r', \\\\ '.join(ls)
-        s += r'\\} \\\\ '
+        s  += r', \\ '.join(ls)
+        s += r'\} \\ '
 
-        s += r'\\end{alignat*}'
+        s += r'\end{alignat*}'
         return s

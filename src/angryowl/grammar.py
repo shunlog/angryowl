@@ -280,6 +280,7 @@ class Grammar:
 
 
     def _DEL(self):
+        # NOTE: currently doesn't work with recursive production rules
         def combinations(sl):
             '''Given a tuple of symbols "sl",
             returns an equivalent set of rules with inlined nullables and removed nulls'''
